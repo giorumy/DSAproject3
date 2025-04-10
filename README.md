@@ -3,4 +3,5 @@
 hello!!
 
 Helpful links:
-https://www.youtube.com/watch?v=FlFyrOEz2S4&ab_channel=Andy%27sTechTutorials
+I think this is the API request we need for this project: https://developer.themoviedb.org/reference/search-person
+
