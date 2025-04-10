@@ -3,4 +3,6 @@ project(DSAproject3)
 
 set(CMAKE_CXX_STANDARD 20)
 
-add_executable(DSAproject3 main.cpp)
+add_executable(DSAproject3 main.cpp
+        data.h
+        graph.cpp)
