@@ -10,6 +10,7 @@
 using json = nlohmann::json;
 using namespace std;
 
+//movie object to store actor information including id (for url), name, release date (year/month/day) and poster path (for image url)
 struct Movie {
     int id;
     string title;
@@ -20,7 +21,7 @@ struct Movie {
         : id(id), title(title), release_date(release_date), poster_path(poster_path) {}
 };
 
-// Actor structure to store actor information
+//actor object to store actor information including id (for url), name, and profile path (for image url)
 struct Actor {
     int id;
     string name;

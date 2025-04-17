@@ -122,15 +122,3 @@ vector<Actor> Data::getActors(string movie_name) {
 
   return actors;
 }
-
-string Data::getActorImage(string actorName) {
-  string url = "";
-  //TODO
-  return url;
-}
-
-string Data::getMovieImage(string movieName) {
-  string url = "";
-  //TODO
-  return url;
-}
