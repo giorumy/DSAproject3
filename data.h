@@ -42,12 +42,9 @@ public:
     //constructor
     Data(string key) : api_key(key){}
 
+    //both functions return an empty vector {} in case the actor/movie was not found
     vector<Movie> getMovies(string actor_name); //returns a list of movies that have a given actor
     vector<Actor> getActors(string movie_name); //returns a list of actors in a given movie
-
-    //TODO: the functions below are for if we end up having time for front end stuff.
-    string getActorImage(string actorName); //returns url of actor image
-    string getMovieImage(string movieName); //returns url of movie poster image
 };
 
 #endif //DATA_H
