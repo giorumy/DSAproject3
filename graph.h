@@ -11,30 +11,11 @@
 #include <chrono>
 #include <functional>
 
+#include "data.h"
+
 using namespace std;
 
 //basic structure
-
-// Movie structure to store movie information
-struct Movie {
-    int id;
-    string title;
-    string release_date;
-
-    Movie(int id, string title, string release_date)
-        : id(id), title(title), release_date(release_date) {}
-};
-
-// Actor structure to store actor information
-struct Actor {
-    int id;
-    string name;
-    string profile_path;
-
-    Actor() : id(0) {}
-    Actor(int id, string name, string profile_path = "")
-        : id(id), name(name), profile_path(profile_path) {}
-};
 
 // Connection structure to represent a connection between actors
 struct Connection {
@@ -92,7 +73,7 @@ public:
     void addActor(Actor* actor);
 
     // Add a movie to the graph
-    Movie* addMovie(int id, const string& title, const string& release_date);
+    Movie* addMovie(int id, const string& title, const string& release_date, const string& poster_path);
 
     // Add a connection between actors through a movie
     bool addConnection(int actorId1, int actorId2, Movie* movie);

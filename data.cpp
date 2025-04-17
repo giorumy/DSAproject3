@@ -56,8 +56,10 @@ vector<Movie> Data::getMovies(string actor_name) {
     int id = movie_json.contains("id") ? movie_json["id"].get<int>() : -1;
     string title = movie_json.contains("title") ? movie_json["title"].get<string>() : "Unknown Title";
     string date = movie_json.contains("release_date") ? movie_json["release_date"].get<string>() : "Unknown Date";
+    string poster_path = movie_json.contains("poster_path") && !movie_json["poster_path"].is_null()
+                          ? movie_json["poster_path"].get<string>(): ""; // Empty string if no profile path is found
 
-    movies.emplace_back(id, title, date);
+    movies.emplace_back(id, title, date, poster_path);
   }
 
   return movies;

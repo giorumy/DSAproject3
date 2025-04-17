@@ -18,7 +18,7 @@ void Graph::addActor(Actor* actor) {
 }
 
 // Add a movie to the graph
-Movie* Graph::addMovie(int id, const string& title, const string& release_date) {
+Movie* Graph::addMovie(int id, const string& title, const string& release_date, const string& poster_path) {
     // Check if movie with this ID already exists
     for (auto movie : movies) {
         if (movie->id == id) {
@@ -27,7 +27,7 @@ Movie* Graph::addMovie(int id, const string& title, const string& release_date) 
     }
 
     // Create new movie and add to collection
-    Movie* movie = new Movie(id, title, release_date);
+    Movie* movie = new Movie(id, title, release_date, poster_path);
     movies.push_back(movie);
     return movie;
 }

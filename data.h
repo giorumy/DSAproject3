@@ -14,9 +14,10 @@ struct Movie {
     int id;
     string title;
     string release_date;
+    string poster_path;
 
-    Movie(int id, string title, string release_date)
-        : id(id), title(title), release_date(release_date) {}
+    Movie(int id, string title, string release_date, string poster_path)
+        : id(id), title(title), release_date(release_date), poster_path(poster_path) {}
 };
 
 // Actor structure to store actor information

@@ -14,7 +14,7 @@ int main()
     vector<Movie> movies = data.getMovies(actor);
     cout << "Movies featuring " << actor << ":\n";
     for (const auto& movie : movies) {
-        cout << "- " << movie.title << " (" << movie.release_date << "), ID: " << movie.id << "\n";
+        cout << "- " << movie.title << " (" << movie.release_date << "), ID: " << movie.id << ", Path: " << movie.poster_path << "\n";
     }
 
     cout << "----------------------------------" << endl;
@@ -24,7 +24,7 @@ int main()
     vector<Actor> actors = data.getActors(movie);
     cout << "Actors featuring " << movie << ":\n";
     for (const auto& actor : actors) {
-        cout << "- " << actor.name << " (" << actor.id << "), Pic: " << actor.profile_path << "\n";
+        cout << "- " << actor.name << " (" << actor.id << "), Path: " << actor.profile_path << "\n";
     }
 
 
