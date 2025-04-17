@@ -4,6 +4,7 @@ hello!!
 
 Helpful links:
 I think this is the API request we need for this project: https://developer.themoviedb.org/reference/search-person
+
 SFML for front end: https://www.sfml-dev.org/ 
 
 For the visual representation, it should be pretty simple no?
