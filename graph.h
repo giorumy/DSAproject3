@@ -52,28 +52,30 @@ private:
     unordered_map<int, Actor*> actors;
     unordered_map<int, vector<Connection>> adjacencyList;
     vector<Movie*> movies; // Store all movies to manage memory
+    Data data;
 
 public:
-    Graph() {}
+    Graph() : data("07663db07b6982f498aef71b6b0997f7"){}
 
-    // Destructor to clean up memory
-    ~Graph() {
-        // Delete all actors
-        for (auto& pair : actors) {
-            delete pair.second;
-        }
-
-        // Delete all movies
-        for (auto movie : movies) {
-            delete movie;
-        }
-    }
+    // TODO: fix destructor to clean up memory
+    // ~Graph() {
+    //     // Delete all actors
+    //     for (auto& pair : actors) {
+    //         delete pair.second;
+    //     }
+    //
+    //     // Delete all movies
+    //     for (auto movie : movies) {
+    //         delete movie;
+    //     }
+    // }
 
     // Add an actor to the graph
     void addActor(Actor* actor);
 
     // Add a movie to the graph
     Movie* addMovie(int id, const string& title, const string& release_date, const string& poster_path);
+    void addMovie(Movie* movie);
 
     // Add a connection between actors through a movie
     bool addConnection(int actorId1, int actorId2, Movie* movie);

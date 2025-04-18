@@ -10,11 +10,25 @@
 void Graph::addActor(Actor* actor) {
     if (actors.find(actor->id) == actors.end()) {
         actors[actor->id] = actor;
-        adjacencyList[actor->id] = vector<Connection>();
+        vector<Movie> movies = data.getMovies(actor->name);
+        vector<Actor> cast;
+        for(auto movie : movies) {
+            cout << movie.title << ": ";
+            cast = data.getActors(movie.title);
+            for(auto person : cast) {
+                cout << person.name << ", ";
+                addConnection(actor->id, person.id, &movie);
+            }
+            cout << endl;
+        }
     } else {
         // Actor already exists, delete the new one to avoid memory leak
         delete actor;
     }
+}
+
+void Graph::addMovie(Movie* movie) {
+    movies.push_back(movie);
 }
 
 // Add a movie to the graph
@@ -141,6 +155,7 @@ SearchResult Graph::findPathBFS(int startActorId, int endActorId) {
         q.pop();
 
         // Get all connections for the current actor
+        //TODO:
         const auto& connections = adjacencyList[currentActorId];
 
         for (const auto& connection : connections) {

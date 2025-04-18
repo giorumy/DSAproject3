@@ -26,12 +26,15 @@ int main()
     // for (const auto& actor : actors) {
     //     cout << "- " << actor.name << " (" << actor.id << "), Path: " << actor.profile_path << "\n";
     // }
-    Actor Tom = data.getActorObject('Tom Hanks');
-    Actor Robin = data.getActorObject('Robin Wright');
+
+
     Graph graph;
-   // graph.addActor(&Tom);
 
+    vector<Movie> movies = data.getMovies("Tom Hanks");
+    Actor Tom = data.getActorObject("Tom Hanks");
+    graph.addActor(&Tom);
 
+    Actor Robin = data.getActorObject("Robin Wright");
 
 
     return 0;
