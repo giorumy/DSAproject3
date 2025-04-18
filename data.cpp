@@ -41,7 +41,12 @@ vector<Movie> Data::getMovies(string actor_name) {
   }
 
   int actor_id = actor_data["results"][0]["id"];
-  string actor_path = actor_data["results"][0]["profile_path"];
+  string actor_path; //= actor_data["results"][0]["profile_path"];
+  if (!(actor_data["results"][0]["profile_path"].is_null())) {
+    actor_path = actor_data["results"][0]["profile_path"];
+  }else {
+    actor_path = "";
+  }
 
   actorID[actor_name] = actor_id;
   actorObjects[actor_id] = Actor(actor_id, actor_name, actor_path);

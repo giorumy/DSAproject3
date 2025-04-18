@@ -29,12 +29,21 @@ int main()
 
 
     Graph graph;
+    string actorOneInput;
+    string actorTwoInput;
+    std::cout << "Input an actor's name: " << endl;
+    std::getline(cin, actorOneInput);
+    std::cout << "Input an actor to connect to: " << endl;
+    std::getline(cin, actorTwoInput);
 
-    vector<Movie> movies = data.getMovies("Tom Hanks");
-    Actor Tom = data.getActorObject("Tom Hanks");
-    graph.addActor(&Tom);
 
-    Actor Robin = data.getActorObject("Robin Wright");
+    vector<Movie> movies = data.getMovies(actorOneInput);
+    vector<Movie> movies2 = data.getMovies(actorTwoInput);
+    Actor input_actor = data.getActorObject(actorOneInput);
+    Actor final_actor = data.getActorObject(actorTwoInput);
+    graph.addActor(&input_actor, &final_actor);
+
+
 
 
     return 0;

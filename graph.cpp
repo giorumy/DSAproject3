@@ -7,15 +7,21 @@
 #include "graph.h"
 
 // Add an actor to the graph
-void Graph::addActor(Actor* actor) {
+void Graph::addActor(Actor* actor, Actor* actorTwo) {
     if (actors.find(actor->id) == actors.end()) {
         actors[actor->id] = actor;
+        cout << "Getting movies for actor: " << actor->name << endl;
         vector<Movie> movies = data.getMovies(actor->name);
         vector<Actor> cast;
         for(auto movie : movies) {
             cout << movie.title << ": ";
             cast = data.getActors(movie.title);
             for(auto person : cast) {
+                if (person.id == actorTwo->id) {
+                    cout << " \n Match found! \n";
+                    cout << "Path: " << actor->name << " " << movie.title << " " << actorTwo->name;
+                    goto exitCondition;
+                }
                 cout << person.name << ", ";
                 addConnection(actor->id, person.id, &movie);
             }
@@ -25,6 +31,8 @@ void Graph::addActor(Actor* actor) {
         // Actor already exists, delete the new one to avoid memory leak
         delete actor;
     }
+    exitCondition:
+    ;
 }
 
 void Graph::addMovie(Movie* movie) {

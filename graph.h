@@ -71,7 +71,7 @@ public:
     // }
 
     // Add an actor to the graph
-    void addActor(Actor* actor);
+    void addActor(Actor* actorOne, Actor* actorTwo);
 
     // Add a movie to the graph
     Movie* addMovie(int id, const string& title, const string& release_date, const string& poster_path);
