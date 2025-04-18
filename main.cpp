@@ -1,5 +1,5 @@
 #include <iostream>
-#include "data.h"
+#include "graph.h"
 
 int main()
 {
@@ -10,22 +10,28 @@ int main()
     //example of API use:
 
     //with an actor:
-    string actor = "Tom Hanks";
-    vector<Movie> movies = data.getMovies(actor);
-    cout << "Movies featuring " << actor << ":\n";
-    for (const auto& movie : movies) {
-        cout << "- " << movie.title << " (" << movie.release_date << "), ID: " << movie.id << ", Path: " << movie.poster_path << "\n";
-    }
+    // string actor = "Tom Hanks";
+    // vector<Movie> movies = data.getMovies(actor);
+    // cout << "Movies featuring " << actor << ":\n";
+    // for (const auto& movie : movies) {
+    //     cout << "- " << movie.title << " (" << movie.release_date << "), ID: " << movie.id << ", Path: " << movie.poster_path << "\n";
+    // }
+    //
+    // cout << "----------------------------------" << endl;
+    //
+    // //with a movie:
+    // string movie = "Forrest Gump";
+    // vector<Actor> actors = data.getActors(movie);
+    // cout << "Actors featuring " << movie << ":\n";
+    // for (const auto& actor : actors) {
+    //     cout << "- " << actor.name << " (" << actor.id << "), Path: " << actor.profile_path << "\n";
+    // }
+    Actor Tom = data.getActorObject('Tom Hanks');
+    Actor Robin = data.getActorObject('Robin Wright');
+    Graph graph;
+   // graph.addActor(&Tom);
 
-    cout << "----------------------------------" << endl;
 
-    //with a movie:
-    string movie = "Forrest Gump";
-    vector<Actor> actors = data.getActors(movie);
-    cout << "Actors featuring " << movie << ":\n";
-    for (const auto& actor : actors) {
-        cout << "- " << actor.name << " (" << actor.id << "), Path: " << actor.profile_path << "\n";
-    }
 
 
     return 0;
