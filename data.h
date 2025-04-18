@@ -5,6 +5,7 @@
 #include <fstream>
 #include <cstdlib>
 #include <sstream>
+#include <unordered_map>
 #include "json.hpp"
 
 using json = nlohmann::json;
@@ -35,6 +36,8 @@ struct Actor {
 class Data {
 private:
     string api_key;
+    unordered_map<string, int> actorID;
+    unordered_map<int, Actor> actorObjects;
 
     //helper function: encodes spaces in actor names for the URL
     //e.g. "Tom Hanks" -> "Tom%20Hanks"
@@ -42,6 +45,8 @@ private:
 public:
     //constructor
     Data(string key) : api_key(key){}
+
+    Actor getActorObject(string actor_name); //returns the object for the given actor
 
     //both functions return an empty vector {} in case the actor/movie was not found
     vector<Movie> getMovies(string actor_name); //returns a list of movies that have a given actor

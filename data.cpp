@@ -12,6 +12,11 @@ string Data::urlEncode(string& str){
   return encoded;
 }
 
+Actor Data::getActorObject(string actor_name) {
+  int id = actorID[actor_name];
+  return actorObjects[id];
+}
+
 vector<Movie> Data::getMovies(string actor_name) {
   vector<Movie> movies = {};
 
@@ -37,6 +42,10 @@ vector<Movie> Data::getMovies(string actor_name) {
   }
 
   int actor_id = actor_data["results"][0]["id"];
+  string actor_path = actor_data["results"][0]["profile_path"];
+
+  actorID[actor_name] = actor_id;
+  actorObjects[actor_id] = Actor(actor_id, actor_name, actor_path);
 
   ostringstream credits_url;
   credits_url << "https://api.themoviedb.org/3/person/" << actor_id << "/movie_credits?api_key=" << api_key;
