@@ -16,7 +16,6 @@ Actor Data::getActorObject(string actor_name) {
   int id = actorID[actor_name];
   return actorObjects[id];
 }
-
 vector<Movie> Data::getMovies(string actor_name) {
   vector<Movie> movies = {};
 
