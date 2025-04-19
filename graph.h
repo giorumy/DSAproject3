@@ -15,8 +15,6 @@
 
 using namespace std;
 
-//basic structure
-
 // Connection structure to represent a connection between actors
 struct Connection {
     int actorId;
@@ -43,8 +41,10 @@ struct SearchResult {
     vector<PathStep> path;
     double time_ms;
     int visited;
+    double data_fetch_ms; // Time spent fetching data
+    double algorithm_ms;  // Time spent in the algorithm itself
 
-    SearchResult() : time_ms(0), visited(0) {}
+    SearchResult() : time_ms(0), visited(0), data_fetch_ms(0), algorithm_ms(0) {}
 };
 
 class Graph {
@@ -54,24 +54,31 @@ private:
     vector<Movie*> movies; // Store all movies to manage memory
     Data data;
 
+    // Helper method for bidirectional search
+    bool processNeighbors(int currentId, unordered_map<int, pair<int, Movie*>>& previous,
+                         set<int>& visited, queue<int>& q, set<int>& otherVisited,
+                         int& meetingPoint);
+
 public:
     Graph() : data("07663db07b6982f498aef71b6b0997f7"){}
 
-    // TODO: fix destructor to clean up memory
-    // ~Graph() {
-    //     // Delete all actors
-    //     for (auto& pair : actors) {
-    //         delete pair.second;
-    //     }
-    //
-    //     // Delete all movies
-    //     for (auto movie : movies) {
-    //         delete movie;
-    //     }
-    // }
+    ~Graph() {
+        // Delete all actors
+        for (auto& pair : actors) {
+            delete pair.second;
+        }
 
-    // Add an actor to the graph
-    void addActor(Actor* actor);
+        // Delete all movies
+        for (auto movie : movies) {
+            delete movie;
+        }
+    }
+
+    // Add an actor to the graph, fetching only movies connecting to the target actor
+    void addActor(Actor* actor, int targetActorId);
+
+    // Expand the graph from an actor (used in bidirectional search)
+    void expandFromActor(int actorId, set<int>& targetSet);
 
     // Add a movie to the graph
     Movie* addMovie(int id, const string& title, const string& release_date, const string& poster_path);
@@ -85,6 +92,9 @@ public:
 
     // BFS to find path between two actors
     SearchResult findPathBFS(int startActorId, int endActorId);
+
+    // Bidirectional BFS for more efficient path finding
+    SearchResult findPathBidirectional(int startActorId, int endActorId);
 
     // DFS to find path between two actors
     SearchResult findPathDFS(int startActorId, int endActorId);

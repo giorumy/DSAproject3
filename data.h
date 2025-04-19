@@ -42,6 +42,10 @@ private:
     //helper function: encodes spaces in actor names for the URL
     //e.g. "Tom Hanks" -> "Tom%20Hanks"
     string urlEncode(string& str);
+
+    // Helper function to fetch data using libcurl
+    string fetchData(const string& url);
+
 public:
     //constructor
     Data(string key) : api_key(key){}
@@ -51,6 +55,9 @@ public:
     //both functions return an empty vector {} in case the actor/movie was not found
     vector<Movie> getMovies(string actor_name); //returns a list of movies that have a given actor
     vector<Actor> getActors(string movie_name); //returns a list of actors in a given movie
+
+    // Static method for URL encoding
+    static string urlEncode(const string& str);
 };
 
 #endif //DATA_H
