@@ -32,7 +32,7 @@ string api::fetchData(const string &url) {
     return content;
 }
 
-string api::urlEncode(const string &str) {
+string api::urlEncode(const string& str){
     string encoded;
     for(char c : str){
         if(c == ' '){
@@ -43,4 +43,24 @@ string api::urlEncode(const string &str) {
     }
     return encoded;
 }
+
+int api::searchActor(const string &name) {
+    string encodedName = urlEncode(name);
+    string url = base_url + "/search/person?api_key=" + api_key + "&query=" + encodedName;
+    string response = fetchData(url);
+    if(!response.empty()) {
+        json data = json::parse(response);
+        if (data.contains("results") && data["results"].is_array() && !data["results"].empty()) {
+            const auto& result = data["results"][0];
+            if (result.contains("id")) {
+                return result["id"].get<int>();
+            }
+        }
+    }
+    cerr << "Actor was not found in database." << endl;
+    return 0;
+}
+
+
+
 
