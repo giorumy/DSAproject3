@@ -5,4 +5,6 @@ set(CMAKE_CXX_STANDARD 20)
 
 add_executable(DSAproject3 main.cpp
         graph.cpp
-        data.cpp)
+        data.cpp
+        api.cpp
+)

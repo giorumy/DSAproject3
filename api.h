@@ -23,8 +23,11 @@ private:
 public:
     api(const string& key) : api_key(key), base_url("https://api.themoviedb.org/3") {} //constructor
 
-    string fetchData(const string &url);
-    string urlEncode(const string &str);
+    //TODO: maybe these two methods could be private?
+    string fetchData(const string &url); //makes API requests
+    string urlEncode(const string &str); //encodes spaces in actor names for the URL - e.g. "Tom Hanks" => "Tom%20Hanks"
+
+    int searchActor(const string& name); //returns id of first actor in api search
 };
 
 
