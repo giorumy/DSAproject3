@@ -1,16 +1,14 @@
-//
-// Created by gioru on 4/20/2025.
-//
-
 #ifndef API_H
 #define API_H
 
 #include <iostream>
 #include <fstream>
+#include <optional> //https://en.cppreference.com/w/cpp/utility/optional
+#include "json.hpp"
+
 #include <cstdlib>
 #include <sstream>
 #include <unordered_map>
-#include "json.hpp"
 
 using json = nlohmann::json;
 using namespace std;
@@ -50,7 +48,10 @@ public:
     string urlEncode(const string &str); //encodes spaces in actor names for the URL - e.g. "Tom Hanks" => "Tom%20Hanks"
 
     int searchActor(const string& name); //returns id of first actor in api search - e.g. "Tom Hanks" => 31
-    Actor* getActor(int actorID); //returns actor object given their id
+    Actor* getActor(int actorID); //returns pointer to actor object given their id
+
+    vector<Actor> getActors(const string& movieName);
+    vector<Movie> getMovies(const string& actorName);
 };
 
 

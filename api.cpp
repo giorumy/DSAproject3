@@ -87,5 +87,90 @@ Actor* api::getActor(int actorID) {
     return nullptr;
 }
 
+vector<Actor> api::getActors(const string &movieName) {
+    vector<Actor> actors;
+
+    string encodedName = urlEncode(movieName);
+    string url = base_url + "/search/movie?api_key=" + api_key + "&query=" + encodedName;
+
+    string response = fetchData(url);
+    if(response.empty()) {
+        cerr << "Failed to fetch actors for movie." << endl;
+        return actors;
+    }
+
+    try {
+        json movieData = json::parse(response);
+        if(!movieData["results"].empty()) {
+            int movieID = movieData["results"][0]["id"].get<int>();
+
+            stringstream creditsURL;
+            creditsURL << base_url << "/movie/" << movieID << "/credits?api_key=" << api_key;
+            string creditResponse = fetchData(creditsURL.str());
+
+            if(creditResponse.empty()) {
+                cerr << "Failed to fetch credits for movie." << endl;
+                return actors;
+            }
+
+            json creditData = json::parse(creditResponse);
+            if(creditData.contains("cast")) {
+                for(const auto& actor : creditData["cast"]) {
+                    int id = actor.value("id", 0);
+                    string name = actor.value("name", "Unknown name");
+                    string profile_path = actor.contains("profile_path") && !actor["profile_path"].is_null() ? actor["profile_path"].get<string>() : "";
+
+                    actors.emplace_back(id, name, profile_path);
+                }
+            }
+        } else {
+            cerr << "Movie not found." << endl;
+        }
+    } catch (const exception& e) {
+        cerr << "Error parsing JSON: " << e.what() << endl;
+    }
+    return actors;
+}
+
+vector<Movie> api::getMovies(const string &actorName) {
+    vector<Movie > movies;
+
+    int actorID = searchActor(actorName);
+    if(actorID <= 0) {
+        cerr << "Actor not found." << endl;
+        return movies;
+    }
+
+    stringstream creditURL;
+    creditURL << base_url << "/person/" << actorID << "/movie_credits?api_key=" << api_key;
+
+    string creditResponse = fetchData(creditURL.str());
+    if(creditResponse.empty()) {
+        cerr << "Failed to fetch credits for movie." << endl;
+        return movies;
+    }
+
+    try {
+        json creditData = json::parse(creditResponse);
+        if(creditData.contains("cast")) {
+            for(const auto& movie : creditData["cast"]) {
+                int id = movie.value("id", 0);
+                string title = movie.value("title", "Unknown title");
+                string date = (movie.contains("release_date") &&
+               !movie["release_date"].is_null() &&
+               !movie["release_date"].get<string>().empty())
+              ? movie["release_date"].get<string>()
+              : "No release date";
+                string poster_path = movie.contains("poster_path") && !movie["poster_path"].is_null() ? movie["poster_path"].get<string>() : "";
+
+                movies.emplace_back(id, title, date, poster_path);
+            }
+        }
+    } catch (const exception& e) {
+        cerr << "Error parsing JSON: " << e.what() << endl;
+    }
+
+    return movies;
+}
 
 
