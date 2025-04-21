@@ -4,11 +4,11 @@
 #include <iomanip>
 #include <fstream>
 #include "graph.h"
-#include "api.h"  // Updated include
+#include "api.h"
 
 using namespace std;
 
-// Function to display the path
+// Function to display the path in a linear format: actor1 - movie - actor2 - movie - actor3
 void displayPath(const SearchResult& result, const string& algorithm, ostream& out = cout) {
     if (result.path.empty()) {
         out << "No path found using " << algorithm << "." << endl;
@@ -20,20 +20,72 @@ void displayPath(const SearchResult& result, const string& algorithm, ostream& o
     out << "Data fetch time: " << fixed << setprecision(2) << result.data_fetch_ms << " ms" << endl;
     out << "Algorithm time: " << fixed << setprecision(2) << result.algorithm_ms << " ms" << endl;
     out << "Nodes visited: " << result.visited << endl;
-    out << "\nPath:" << endl;
+    out << "\nPath: ";
 
+    // First, print the detailed path in the original format for debugging
+    out << "\nDetailed path:" << endl;
     for (size_t i = 0; i < result.path.size(); i++) {
         const auto& step = result.path[i];
-        out << i + 1 << ". " << step.actor->name << endl;
+        out << i + 1 << ". " << step.actor->name << " (ID: " << step.actor->id << ")" << endl;
 
-        if (i < result.path.size() - 1 && step.movie) {
-            string year = "N/A";
-            if (!step.movie->release_date.empty()) {
-                year = step.movie->release_date.substr(0, 4);
+        if (i < result.path.size() - 1) {
+            // Find the next step to get the movie connection
+            const auto& nextStep = result.path[i + 1];
+            Movie* movie = nullptr;
+
+            // If this step has a movie, use it
+            if (step.movie) {
+                movie = step.movie;
+                out << "   ↓ appeared in \"" << movie->title << "\" ("
+                    << (movie->release_date.empty() ? "N/A" : movie->release_date.substr(0, 4))
+                    << ") with" << endl;
             }
-            out << "   ↓ appeared in \"" << step.movie->title << "\" (" << year << ") with" << endl;
+            // If next step has a prevActor that matches this actor, use its movie
+            else if (nextStep.prevActor && nextStep.prevActor->id == step.actor->id && nextStep.movie) {
+                movie = nextStep.movie;
+                out << "   ↓ appeared in \"" << movie->title << "\" ("
+                    << (movie->release_date.empty() ? "N/A" : movie->release_date.substr(0, 4))
+                    << ") with" << endl;
+            }
+            else {
+                out << "   ↓ connection details missing" << endl;
+            }
         }
     }
+
+    // Now print the linear format
+    out << "\nLinear path: ";
+    for (size_t i = 0; i < result.path.size(); i++) {
+        const auto& step = result.path[i];
+
+        // Print actor name
+        out << step.actor->name;
+
+        // If not the last actor, print the movie connection
+        if (i < result.path.size() - 1) {
+            Movie* movie = nullptr;
+
+            // If this step has a movie, use it
+            if (step.movie) {
+                movie = step.movie;
+            }
+            // If next step has a prevActor that matches this actor, use its movie
+            else if (i+1 < result.path.size() &&
+                     result.path[i+1].prevActor &&
+                     result.path[i+1].prevActor->id == step.actor->id &&
+                     result.path[i+1].movie) {
+                movie = result.path[i+1].movie;
+            }
+
+            if (movie) {
+                string year = movie->release_date.empty() ? "N/A" : movie->release_date.substr(0, 4);
+                out << " → [" << movie->title << " (" << year << ")] → ";
+            } else {
+                out << " → [Unknown Movie] → ";
+            }
+        }
+    }
+    out << endl;
 }
 
 int main() {
@@ -41,10 +93,6 @@ int main() {
 
     // Open output file
     ofstream outputFile("starpath_results.txt");
-    if (!outputFile.is_open()) {
-        cerr << "Failed to open output file for writing results." << endl;
-        // Continue with console output only
-    }
 
     // Using the API key from Graph constructor
     string apiKey = "07663db07b6982f498aef71b6b0997f7";
@@ -195,66 +243,6 @@ int main() {
          << " │ " << setw(10) << (bfsResult.path.empty() ? 0 : bfsResult.path.size()) << " │" << endl;
 
     cout << "└─────────────────┴────────────┴────────────┴────────────┴───────────┴────────────┘" << endl;
-
-    // Calculate performance differences
-    double timeDiff = bfsResult.time_ms - biResult.time_ms;
-    double algoTimeDiff = bfsResult.algorithm_ms - biResult.algorithm_ms;
-    int visitedDiff = bfsResult.visited - biResult.visited;
-
-    cout << "\n===== Performance Analysis =====" << endl;
-
-    // Time comparison
-    cout << "Time difference: ";
-    if (timeDiff > 0) {
-        cout << "Bidirectional is " << fixed << setprecision(2) << (timeDiff / bfsResult.time_ms * 100)
-             << "% faster overall" << endl;
-    } else if (timeDiff < 0) {
-        cout << "BFS is " << fixed << setprecision(2) << (-timeDiff / biResult.time_ms * 100)
-             << "% faster overall" << endl;
-    } else {
-        cout << "Both algorithms have the same overall time" << endl;
-    }
-
-    // Algorithm time comparison
-    cout << "Algorithm time difference: ";
-    if (algoTimeDiff > 0) {
-        cout << "Bidirectional is " << fixed << setprecision(2) << (algoTimeDiff / bfsResult.algorithm_ms * 100)
-             << "% faster in algorithm execution" << endl;
-    } else if (algoTimeDiff < 0) {
-        cout << "BFS is " << fixed << setprecision(2) << (-algoTimeDiff / biResult.algorithm_ms * 100)
-             << "% faster in algorithm execution" << endl;
-    } else {
-        cout << "Both algorithms have the same algorithm execution time" << endl;
-    }
-
-    // Nodes visited comparison
-    cout << "Nodes visited difference: ";
-    if (visitedDiff > 0) {
-        cout << "Bidirectional visited " << visitedDiff << " fewer nodes ("
-             << fixed << setprecision(2) << (static_cast<double>(visitedDiff) / bfsResult.visited * 100)
-             << "% reduction)" << endl;
-    } else if (visitedDiff < 0) {
-        cout << "BFS visited " << -visitedDiff << " fewer nodes ("
-             << fixed << setprecision(2) << (static_cast<double>(-visitedDiff) / biResult.visited * 100)
-             << "% reduction)" << endl;
-    } else {
-        cout << "Both algorithms visited the same number of nodes" << endl;
-    }
-
-    // Path length comparison
-    if (!biResult.path.empty() && !bfsResult.path.empty()) {
-        int biLength = biResult.path.size();
-        int bfsLength = bfsResult.path.size();
-
-        cout << "Path length: ";
-        if (biLength < bfsLength) {
-            cout << "Bidirectional found a shorter path" << endl;
-        } else if (bfsLength < biLength) {
-            cout << "BFS found a shorter path" << endl;
-        } else {
-            cout << "Both algorithms found paths of equal length" << endl;
-        }
-    }
 
     // Clean up
     delete graph;
