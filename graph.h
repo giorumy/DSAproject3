@@ -11,7 +11,7 @@
 #include <chrono>
 #include <functional>
 
-#include "data.h"
+#include "api.h"
 
 using namespace std;
 
@@ -59,7 +59,8 @@ private:
     //not used yet
     //vector<Movie*> movies;
     //Data data;
-
+    bool processNeighbors(int currentActorId, unordered_map<int, pair<int, Movie*>>& previous, set<int>& visited, queue<int>& q,
+        set<int>& otherVisited, int& meetingPoint);
 
     //helper functions:
 
@@ -100,14 +101,19 @@ public:
     // Add a connection between actors through a movie
     bool addConnection(int actorId1, int actorId2, Movie* movie);
 
+    //expands the graph from a given actor by:
+    // - fetching all their movies
+    // - looking at the cast for each of those movies
+    // - adding the ones who are not on graph already and connecting them to original actor
+    void expandFromActor(int actorID, set<int>& targetSet);
     // Get actor by ID
     Actor* getActor(int actorId) const;
 
     // BFS to find path between two actors
     SearchResult findPathBFS(int startActorId, int endActorId);
 
-    // DFS to find path between two actors
-    SearchResult findPathDFS(int startActorId, int endActorId);
+    // Bidirectional Search from each end
+    SearchResult findPathBDS(int startActorId, int endActorId);
 
     // Get graph statistics
     pair<int, int> getStats() const;

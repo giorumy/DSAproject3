@@ -1,50 +1,51 @@
 #include <iostream>
+#include <string>
+#include <vector>
+#include <iomanip>
+#include <fstream>
 #include "graph.h"
+#include "api.h"  // Updated include
 
-int main()
-{
-    std::cout << ":)" << std::endl;
+using namespace std;
 
-    Data data("07663db07b6982f498aef71b6b0997f7");
+// Function to display the path
+void displayPath(const SearchResult& result, const string& algorithm, ostream& out = cout) {
+    if (result.path.empty()) {
+        out << "No path found using " << algorithm << "." << endl;
+        return;
+    }
 
-    //example of API use:
+    out << "\n===== Path found using " << algorithm << " =====" << endl;
+    out << "Total time: " << fixed << setprecision(2) << result.time_ms << " ms" << endl;
+    out << "Data fetch time: " << fixed << setprecision(2) << " ms" << endl;
+    out << "Algorithm time: " << fixed << setprecision(2) << " ms" << endl;
+    out << "Nodes visited: " << result.visited << endl;
+    out << "\nPath:" << endl;
 
-    //with an actor:
-    // string actor = "Tom Hanks";
-    // vector<Movie> movies = data.getMovies(actor);
-    // cout << "Movies featuring " << actor << ":\n";
-    // for (const auto& movie : movies) {
-    //     cout << "- " << movie.title << " (" << movie.release_date << "), ID: " << movie.id << ", Path: " << movie.poster_path << "\n";
-    // }
-    //
-    // cout << "----------------------------------" << endl;
-    //
-    // //with a movie:
-    // string movie = "Forrest Gump";
-    // vector<Actor> actors = data.getActors(movie);
-    // cout << "Actors featuring " << movie << ":\n";
-    // for (const auto& actor : actors) {
-    //     cout << "- " << actor.name << " (" << actor.id << "), Path: " << actor.profile_path << "\n";
-    // }
+    for (size_t i = 0; i < result.path.size(); i++) {
+        const auto& step = result.path[i];
+        out << i + 1 << ". " << step.actor->name << endl;
 
+        if (i < result.path.size() - 1 && step.movie) {
+            string year = "N/A";
+            if (!step.movie->release_date.empty()) {
+                year = step.movie->release_date.substr(0, 4);
+            }
+            out << "   ↓ appeared in \"" << step.movie->title << "\" (" << year << ") with" << endl;
+        }
+    }
+}
 
+int main() {
+    api api("07663db07b6982f498aef71b6b0997f7");
     Graph graph;
-    string actorOneInput;
-    string actorTwoInput;
-    std::cout << "Input an actor's name: " << endl;
-    std::getline(cin, actorOneInput);
-    std::cout << "Input an actor to connect to: " << endl;
-    std::getline(cin, actorTwoInput);
-
-
-    vector<Movie> movies = data.getMovies(actorOneInput);
-    vector<Movie> movies2 = data.getMovies(actorTwoInput);
-    Actor input_actor = data.getActorObject(actorOneInput);
-    Actor final_actor = data.getActorObject(actorTwoInput);
-    graph.addActor(&input_actor, &final_actor);
-
-
-
+    auto actor = api.getActor(31);
+    auto actor2 = api.getActor(32);
+    auto result1 = graph.findPathBFS(actor->id, actor2->id);
+    auto result = graph.findPathBDS(actor->id, actor2->id);
+    displayPath(result1, "bfs", cout);
+    displayPath(result, "bds", cout);
+    cout << actor->name  << " " << actor2->name << endl;
 
     return 0;
 }
