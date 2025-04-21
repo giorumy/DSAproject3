@@ -15,19 +15,18 @@
 
 using namespace std;
 
-//basic structure
+//basic structures:
 
-// Connection structure to represent a connection between actors
+//connection structure to represent a connection/link/edge between actors
 struct Connection {
     int actorId;
     vector<Movie*> movies;
 
     Connection(int actorId) : actorId(actorId) {}
-    ~Connection() {
-        // We don't delete movies here as they are owned by the Graph class
-    }
+    ~Connection() {}
 };
 
+//TODO
 // Path step structure to represent a step in the path between actors
 struct PathStep {
     Actor* actor;
@@ -38,6 +37,7 @@ struct PathStep {
         : actor(actor), prevActor(prevActor), movie(movie) {}
 };
 
+//TODO
 // Search result structure to store the result of a path search
 struct SearchResult {
     vector<PathStep> path;
@@ -49,32 +49,52 @@ struct SearchResult {
 
 class Graph {
 private:
-    unordered_map<int, Actor*> actors;
-    unordered_map<int, vector<Connection>> adjacencyList;
-    vector<Movie*> movies; // Store all movies to manage memory
-    Data data;
+
+    //variables
+    unordered_map<int, Actor*> actors; //(actor.id, actor.name)
+    unordered_map<int, Movie*> movies; //(movie.id, movie.title)
+    unordered_map<int, vector<Connection>> adjacencyList; //(actor.id, edges)
+    api API;
+
+    //not used yet
+    //vector<Movie*> movies;
+    //Data data;
+
+
+    //helper functions:
+
+    //adds actor to the graph structure (assumes actor is not already in the graph)
+    void addNode(Actor* actor);
+
+    //checks if there is a shared movie between two actors
+    //if a shared movie is found, adds the connection/edge to the graph and breaks out of loop
+    void findSharedMovie(Actor* actor, int targetActorID);
 
 public:
-    Graph() : data("07663db07b6982f498aef71b6b0997f7"){}
+    Graph() : API("07663db07b6982f498aef71b6b0997f7"){} //constructor
 
-    // TODO: fix destructor to clean up memory
-    // ~Graph() {
-    //     // Delete all actors
-    //     for (auto& pair : actors) {
-    //         delete pair.second;
-    //     }
-    //
-    //     // Delete all movies
-    //     for (auto movie : movies) {
-    //         delete movie;
-    //     }
-    // }
+    //adds actor to the graph given a pointer to that actor object and the id of actor we want to connect it with
+    void addActor(Actor* actor, int targetActorID);
 
-    // Add an actor to the graph
-    void addActor(Actor* actorOne, Actor* actorTwo);
-
-    // Add a movie to the graph
+    //adds movie to movie map and returns a pointer to it
     Movie* addMovie(int id, const string& title, const string& release_date, const string& poster_path);
+
+    /////////////////////////////////////////////
+    ///TODO:
+
+    ~Graph() {
+        // Delete all actors
+        for (auto& pair : actors) {
+            delete pair.second;
+        }
+
+        // TODO: Delete all movies
+        // for (auto movie : movies) {
+        //     delete movie;
+        // }
+    }
+
+
     void addMovie(Movie* movie);
 
     // Add a connection between actors through a movie
