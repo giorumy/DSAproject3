@@ -8,7 +8,7 @@
 
 using namespace std;
 
-// Function to display the path in a linear format: actor1 - movie - actor2 - movie - actor3
+// Function to display the path with correct movie connections
 void displayPath(const SearchResult& result, const string& algorithm, ostream& out = cout) {
     if (result.path.empty()) {
         out << "No path found using " << algorithm << "." << endl;
@@ -20,40 +20,31 @@ void displayPath(const SearchResult& result, const string& algorithm, ostream& o
     out << "Data fetch time: " << fixed << setprecision(2) << result.data_fetch_ms << " ms" << endl;
     out << "Algorithm time: " << fixed << setprecision(2) << result.algorithm_ms << " ms" << endl;
     out << "Nodes visited: " << result.visited << endl;
-    out << "\nPath: ";
+    out << "\nPath: " << endl;
 
-    // First, print the detailed path in the original format for debugging
-    out << "\nDetailed path:" << endl;
+    // Display the detailed path with correct movie connections
     for (size_t i = 0; i < result.path.size(); i++) {
         const auto& step = result.path[i];
-        out << i + 1 << ". " << step.actor->name << " (ID: " << step.actor->id << ")" << endl;
+        out << i + 1 << ". " << step.actor->name;
 
+        // If not the last actor and there's a movie connection
         if (i < result.path.size() - 1) {
-            // Find the next step to get the movie connection
-            const auto& nextStep = result.path[i + 1];
-            Movie* movie = nullptr;
+            // In the PathStep structure, the movie field contains the movie that connects
+            // the current actor to the previous actor, not to the next actor.
+            // For the next connection, we need to look at the next step's movie field.
 
-            // If this step has a movie, use it
-            if (step.movie) {
-                movie = step.movie;
-                out << "   ↓ appeared in \"" << movie->title << "\" ("
-                    << (movie->release_date.empty() ? "N/A" : movie->release_date.substr(0, 4))
-                    << ") with" << endl;
-            }
-            // If next step has a prevActor that matches this actor, use its movie
-            else if (nextStep.prevActor && nextStep.prevActor->id == step.actor->id && nextStep.movie) {
-                movie = nextStep.movie;
-                out << "   ↓ appeared in \"" << movie->title << "\" ("
-                    << (movie->release_date.empty() ? "N/A" : movie->release_date.substr(0, 4))
-                    << ") with" << endl;
-            }
-            else {
-                out << "   ↓ connection details missing" << endl;
+            const auto& nextStep = result.path[i + 1];
+            if (nextStep.movie && nextStep.prevActor && nextStep.prevActor->id == step.actor->id) {
+                string year = nextStep.movie->release_date.empty() ? "N/A" : nextStep.movie->release_date.substr(0, 4);
+                out << "\n   ↓ appeared in \"" << nextStep.movie->title << "\" (" << year << ") with";
+            } else {
+                out << "\n   ↓ connection to next actor (movie details not available)";
             }
         }
+        out << endl;
     }
 
-    // Now print the linear format
+    // Now print the linear format with correct movie connections
     out << "\nLinear path: ";
     for (size_t i = 0; i < result.path.size(); i++) {
         const auto& step = result.path[i];
@@ -63,25 +54,13 @@ void displayPath(const SearchResult& result, const string& algorithm, ostream& o
 
         // If not the last actor, print the movie connection
         if (i < result.path.size() - 1) {
-            Movie* movie = nullptr;
+            const auto& nextStep = result.path[i + 1];
 
-            // If this step has a movie, use it
-            if (step.movie) {
-                movie = step.movie;
-            }
-            // If next step has a prevActor that matches this actor, use its movie
-            else if (i+1 < result.path.size() &&
-                     result.path[i+1].prevActor &&
-                     result.path[i+1].prevActor->id == step.actor->id &&
-                     result.path[i+1].movie) {
-                movie = result.path[i+1].movie;
-            }
-
-            if (movie) {
-                string year = movie->release_date.empty() ? "N/A" : movie->release_date.substr(0, 4);
-                out << " → [" << movie->title << " (" << year << ")] → ";
+            if (nextStep.movie && nextStep.prevActor && nextStep.prevActor->id == step.actor->id) {
+                string year = nextStep.movie->release_date.empty() ? "N/A" : nextStep.movie->release_date.substr(0, 4);
+                out << " → [" << nextStep.movie->title << " (" << year << ")] → ";
             } else {
-                out << " → [Unknown Movie] → ";
+                out << " → [Connection exists but movie details not available] → ";
             }
         }
     }
