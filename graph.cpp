@@ -243,7 +243,7 @@ SearchResult Graph::findPathDFS(int startActorId, int endActorId) {
                 currentPath.push_back(PathStep(
                     actors[neighborId],
                     actors[currentId],
-                    connection.movies[0] // Just use the first movie for simplicity
+                    connection.movies[0]
                 ));
 
                 if (dfsHelper(neighborId, targetId, currentPath)) {
