@@ -1,25 +1,18 @@
 #include <iostream>
 #include "graph.h"
-#include <string>
-#include <vector>
-#include <iomanip>
-#include <fstream>
-#include "api.h"
 
-using namespace std;
-//TODO: Function to display the path
+//function to display the path
 void displayPath(const SearchResult& result, const string& algorithm, ostream& out = cout) {
     if (result.path.empty()) {
         out << "No path found using " << algorithm << "." << endl;
         return;
     }
 
-    out << "\n===== Path found using " << algorithm << " =====" << endl;
+    out << "\n======= " << algorithm << " Path =======" << endl;
     out << "Total time: " << fixed << setprecision(2) << result.time_ms << " ms" << endl;
     out << "Data fetch time: " << fixed << setprecision(2) << result.data_fetch_ms << " ms" << endl;
     out << "Algorithm time: " << fixed << setprecision(2) << result.algorithm_ms << " ms" << endl;
     out << "Nodes visited: " << result.visited << endl;
-    out << "\nPath: " << endl;
 
     // prints path with movie connection
     out << "\nPath: ";
@@ -40,7 +33,8 @@ void displayPath(const SearchResult& result, const string& algorithm, ostream& o
     out << endl;
 }
 
-
+//TODO: function to compare searches
+void displayPerformances(const SearchResult& search1, const SearchResult& search2, ostream& out = cout){}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -72,13 +66,12 @@ int main(){
         return 1;
     }
 
+    //build graph
     cout << "--------------------------------------------------" << endl;
 
     cout << "Creating constelation...\n" << endl;
 
-    //build graph
     Graph graph(tmdb);
-
     graph.addActor(actor1, actorId2);
     graph.addActor(actor2, actorId1);
 
@@ -89,14 +82,25 @@ int main(){
     cout << "--------------------------------------------------" << endl;
     cout << "Connecting stars...\n" << endl;
 
+    cout << "Performing bidirectional search..." << endl;
+    auto bidirectional = graph.findPathBidirectional(actorId1, actorId2);
+
+    cout << "Performing breadth first search..." << endl;
+    auto breathfirst = graph.findPathBFS(actorId1, actorId2);
+
     //write results to file
     cout << "--------------------------------------------------" << endl;
     cout << "Saving to file...\n" << endl;
+
     ofstream outputFile("results.txt");
+    displayPath(bidirectional, "Bidirectional Search", outputFile);
+    displayPath(breathfirst, "Breadth First Search", outputFile);
 
     //compare algorithms
     cout << "--------------------------------------------------" << endl;
-    cout << "Saving to file...\n" << endl;
+    cout << "Comparing searches...\n" << endl;
+
+    displayPerformances(bidirectional, breathfirst, outputFile);
 
     //close file
     if(outputFile.is_open()) {
@@ -105,14 +109,3 @@ int main(){
 
     return 0;
 }
-
-//TODO:
-//getting user input
-//api client
-//get actors from api
-//add actors to graph
-//traverse using algorithms
-//display paths
-//performance analysis
-
-
