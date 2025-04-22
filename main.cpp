@@ -1,50 +1,78 @@
 #include <iostream>
 #include "graph.h"
 
-int main()
-{
-    std::cout << ":)" << std::endl;
+//TODO: Function to display the path
+void displayPath(const SearchResult& result, const string& algorithm, ostream& out = cout) {}
 
-    Data data("07663db07b6982f498aef71b6b0997f7");
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    //example of API use:
+int main(){
 
-    //with an actor:
-    // string actor = "Tom Hanks";
-    // vector<Movie> movies = data.getMovies(actor);
-    // cout << "Movies featuring " << actor << ":\n";
-    // for (const auto& movie : movies) {
-    //     cout << "- " << movie.title << " (" << movie.release_date << "), ID: " << movie.id << ", Path: " << movie.poster_path << "\n";
-    // }
-    //
-    // cout << "----------------------------------" << endl;
-    //
-    // //with a movie:
-    // string movie = "Forrest Gump";
-    // vector<Actor> actors = data.getActors(movie);
-    // cout << "Actors featuring " << movie << ":\n";
-    // for (const auto& actor : actors) {
-    //     cout << "- " << actor.name << " (" << actor.id << "), Path: " << actor.profile_path << "\n";
-    // }
+    cout << "============== Welcome to StarPath! ==============\n" << endl;
 
+    //initializing objects
+    api tmdb("07663db07b6982f498aef71b6b0997f7");
+    string actorName1, actorName2;
 
-    Graph graph;
-    string actorOneInput;
-    string actorTwoInput;
-    std::cout << "Input an actor's name: " << endl;
-    std::getline(cin, actorOneInput);
-    std::cout << "Input an actor to connect to: " << endl;
-    std::getline(cin, actorTwoInput);
+    //getting user input
+    cout << "Enter name of the first actor: " << endl;
+    getline(cin, actorName1);
+    int actorId1 = tmdb.searchActor(actorName1);
+    auto actor1 = tmdb.getActor(actorId1);
+    if(actor1 == NULL || actor1->name != actorName1) {
+        cerr << "No actors named '" << actorName1 << "' were found. Exiting program..." << endl;
+        return 1;
+    }
 
+    cout << "Enter name of the second actor: " << endl;
+    getline(cin, actorName2);
 
-    vector<Movie> movies = data.getMovies(actorOneInput);
-    vector<Movie> movies2 = data.getMovies(actorTwoInput);
-    Actor input_actor = data.getActorObject(actorOneInput);
-    Actor final_actor = data.getActorObject(actorTwoInput);
-    graph.addActor(&input_actor, &final_actor);
+    int actorId2 = tmdb.searchActor(actorName2);
+    auto actor2 = tmdb.getActor(actorId2);
+    if(actor2 == NULL || actor2->name != actorName2) {
+        cerr << "No actors named '" << actorName2 << "' were found. Exiting program..." << endl;
+        return 1;
+    }
 
+    cout << "--------------------------------------------------" << endl;
 
+    cout << "Creating constelation...\n" << endl;
 
+    //build graph
+    Graph graph(tmdb);
+
+    graph.addActor(actor1, actorId2);
+    graph.addActor(actor2, actorId1);
+
+    auto stats = graph.getStats();
+    cout << "Graph build with " << stats.first << " actors and " << stats.second << " connections." << endl;
+
+    //perform searches
+    cout << "--------------------------------------------------" << endl;
+    cout << "Connecting stars...\n" << endl;
+
+    //write results to file
+    cout << "--------------------------------------------------" << endl;
+    cout << "Saving to file...\n" << endl;
+    ofstream outputFile("results.txt");
+
+    //compare algorithms
+    cout << "--------------------------------------------------" << endl;
+    cout << "Saving to file...\n" << endl;
+
+    //close file
+    if(outputFile.is_open()) {
+        outputFile.close();
+    }
 
     return 0;
 }
+
+//TODO:
+//getting user input
+//api client
+//get actors from api
+//add actors to graph
+//traverse using algorithms
+//display paths
+//performance analysis
