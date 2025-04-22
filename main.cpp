@@ -8,7 +8,7 @@ void displayPath(const SearchResult& result, const string& algorithm, ostream& o
         return;
     }
 
-    out << "\n======= " << algorithm << " Path =======" << endl;
+    out << "\n==============\t" << algorithm << " Path\t==============" << endl;
     out << "Total time: " << fixed << setprecision(2) << result.time_ms << " ms" << endl;
     out << "Data fetch time: " << fixed << setprecision(2) << result.data_fetch_ms << " ms" << endl;
     out << "Algorithm time: " << fixed << setprecision(2) << result.algorithm_ms << " ms" << endl;
@@ -83,7 +83,7 @@ int main(){
     cout << "Connecting stars...\n" << endl;
 
     cout << "Performing bidirectional search..." << endl;
-    auto bidirectional = graph.findPathBidirectional(actorId1, actorId2);
+    auto bidirectional = graph.findPathBDS(actorId1, actorId2);
 
     cout << "Performing breadth first search..." << endl;
     auto breathfirst = graph.findPathBFS(actorId1, actorId2);
