@@ -21,7 +21,7 @@ void displayPath(const SearchResult& result, const string& algorithm, ostream& o
     out << "Nodes visited: " << result.visited << endl;
     out << "\nPath: " << endl;
 
-    // prints path with movie connections
+    // prints path with movie connection
     out << "\nPath: ";
     for (size_t i = 0; i < result.path.size(); i++) {
         const auto& step = result.path[i];
