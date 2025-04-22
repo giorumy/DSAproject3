@@ -1,5 +1,18 @@
 #include "api.h"
 
+api::api(const string& key) : api_key(key), base_url("https://api.themoviedb.org/3") {
+    apiLog.open("apiLog.txt");
+    if (!apiLog.is_open()) {
+        apiLog << "ERROR: Error opening api log file" << endl;
+    }
+}
+
+api::~api() {
+    if (apiLog.is_open()) {
+        apiLog.close();
+    }
+}
+
 string api::fetchData(const string &url) {
 
     //getting command for fetching data
@@ -7,20 +20,20 @@ string api::fetchData(const string &url) {
     string command = "curl -s \"" + url + "\" > " + tempFile;
 
     //TODO: delete later. this is for debugging only
-    cout << "Executing API request: " << url << endl;
+    apiLog << "Executing API request: " << url << endl;
 
     //executing command
     int result = system(command.c_str());
     if(result != 0 ) {
-        cerr << "Failed to execute command: " << command << endl;
-        cerr << "Error code: " << result << endl;
+        apiLog << "ERROR: Failed to execute command: " << command << endl;
+        apiLog << "ERROR: Error code: " << result << endl;
         return "";
     }
 
     //read file and add to return string
     ifstream file(tempFile);
     if(!file.is_open()) {
-        cerr << "Failed to open temporary file: " << tempFile << endl;
+        apiLog << "ERROR: Failed to open temporary file: " << tempFile << endl;
         return "";
     }
     string content((istreambuf_iterator<char>(file)), istreambuf_iterator<char>());
@@ -57,7 +70,7 @@ int api::searchActor(const string &name) {
             }
         }
     }
-    cerr << "Actor was not found in database." << endl;
+    apiLog << "ERROR: Actor " << name << " was not found in database." << endl;
     return 0;
 }
 
@@ -81,7 +94,7 @@ Actor* api::getActor(int actorID) {
             return new Actor(id, name, profile_path);
         }
     } catch (const exception& e) {
-        cerr << "Error parsing JSON: " << e.what() << endl;
+        apiLog << "ERROR: Error parsing JSON: " << e.what() << endl;
     }
 
     return nullptr;
@@ -95,7 +108,7 @@ vector<Actor> api::getActors(const string &movieName) {
 
     string response = fetchData(url);
     if(response.empty()) {
-        cerr << "Failed to fetch actors for movie." << endl;
+        apiLog << "ERROR: Failed to fetch actors for movie: " << movieName << endl;
         return actors;
     }
 
@@ -109,7 +122,7 @@ vector<Actor> api::getActors(const string &movieName) {
             string creditResponse = fetchData(creditsURL.str());
 
             if(creditResponse.empty()) {
-                cerr << "Failed to fetch credits for movie." << endl;
+                apiLog << "ERROR: Failed to fetch credits for movie: " << movieName << endl;
                 return actors;
             }
 
@@ -124,10 +137,10 @@ vector<Actor> api::getActors(const string &movieName) {
                 }
             }
         } else {
-            cerr << "Movie not found." << endl;
+            apiLog << "ERROR: Movie " <<  movieName << " not found." << endl;
         }
     } catch (const exception& e) {
-        cerr << "Error parsing JSON: " << e.what() << endl;
+        apiLog << "ERROR: Error parsing JSON: " << e.what() << endl;
     }
     return actors;
 }
@@ -137,7 +150,7 @@ vector<Movie> api::getMovies(const string &actorName) {
 
     int actorID = searchActor(actorName);
     if(actorID <= 0) {
-        cerr << "Actor not found." << endl;
+        apiLog << "ERROR: Actor " << actorName << "not found." << endl;
         return movies;
     }
 
@@ -146,7 +159,7 @@ vector<Movie> api::getMovies(const string &actorName) {
 
     string creditResponse = fetchData(creditURL.str());
     if(creditResponse.empty()) {
-        cerr << "Failed to fetch credits for movie." << endl;
+        apiLog << "ERROR: Failed to fetch credits for actor: " << actorName << endl;
         return movies;
     }
 
@@ -167,7 +180,7 @@ vector<Movie> api::getMovies(const string &actorName) {
             }
         }
     } catch (const exception& e) {
-        cerr << "Error parsing JSON: " << e.what() << endl;
+        apiLog << "ERROR: Error parsing JSON: " << e.what() << endl;
     }
 
     return movies;
