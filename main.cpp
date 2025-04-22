@@ -2,7 +2,6 @@
 #include "graph.h"
 
 
-//TODO: Function to display the path
 void displayPath(const SearchResult& result, const string& algorithm, ostream& out = cout) {
     if (result.path.empty()) {
         out << "No path found using " << algorithm << "." << endl;
@@ -74,7 +73,7 @@ int main()
 
 
 
-    //TODO:
+    //TO
     //getting user input
     //api client
     //get actors from api
