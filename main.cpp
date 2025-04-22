@@ -153,9 +153,5 @@ int main(){
         outputFile.close();
     }
 
-    //clean up
-    delete actor1;
-    delete actor2;
-
     return 0;
 }
