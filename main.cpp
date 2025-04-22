@@ -1,14 +1,8 @@
 #include <iostream>
-#include <string>
-#include <vector>
-#include <iomanip>
-#include <fstream>
 #include "graph.h"
-#include "api.h"  // Updated include
 
-using namespace std;
 
-// Function to display the path
+//TODO: Function to display the path
 void displayPath(const SearchResult& result, const string& algorithm, ostream& out = cout) {
     if (result.path.empty()) {
         out << "No path found using " << algorithm << "." << endl;
@@ -17,8 +11,8 @@ void displayPath(const SearchResult& result, const string& algorithm, ostream& o
 
     out << "\n===== Path found using " << algorithm << " =====" << endl;
     out << "Total time: " << fixed << setprecision(2) << result.time_ms << " ms" << endl;
-    out << "Data fetch time: " << fixed << setprecision(2) << " ms" << endl;
-    out << "Algorithm time: " << fixed << setprecision(2) << " ms" << endl;
+    out << "Data fetch time: " << fixed << setprecision(2) << result.time_ms << " ms" << endl;
+    out << "Algorithm time: " << fixed << setprecision(2) << result.time_ms << " ms" << endl;
     out << "Nodes visited: " << result.visited << endl;
     out << "\nPath:" << endl;
 
@@ -36,16 +30,58 @@ void displayPath(const SearchResult& result, const string& algorithm, ostream& o
     }
 }
 
-int main() {
-    api api("07663db07b6982f498aef71b6b0997f7");
+int main()
+{
+    std::cout << "Welcome to StarPath!" << std::endl;
+
+    api tmdb("07663db07b6982f498aef71b6b0997f7");
     Graph graph;
-    auto actor = api.getActor(31);
-    auto actor2 = api.getActor(32);
-    auto result1 = graph.findPathBFS(actor->id, actor2->id);
-    auto result = graph.findPathBDS(actor->id, actor2->id);
-    displayPath(result1, "bfs", cout);
-    displayPath(result, "bds", cout);
-    cout << actor->name  << " " << actor2->name << endl;
+
+
+    int margotId = tmdb.searchActor("Willem Dafoe");
+    int bradId = tmdb.searchActor("Carey Mulligan");
+
+    Actor* margot = tmdb.getActor(margotId);
+    Actor* brad = tmdb.getActor(bradId);
+
+    if (!margot || !brad) {
+        cout << "Failed to get actor details." << endl;
+        return 1;
+    }
+
+    cout << "Adding " << margot->name << " to graph..." << endl;
+    graph.addActor(margot, bradId);
+
+    cout << "Adding " << brad->name << " to graph..." << endl;
+    graph.addActor(brad, margotId);
+
+    auto stats = graph.getStats();
+    cout << "\nGraph built with " << stats.first << " actors and " << stats.second << " connections." << endl;
+
+    cout << "\nFinding path using BDS from " << margot->name << " to " << brad->name << "..." << endl;
+    SearchResult bds = graph.findPathBDS(margotId, bradId);
+
+    //output result
+
+    // Open output file
+    ofstream outputFile("starpath_results.txt");
+    if (outputFile.is_open()) {
+        outputFile << "=== StarPath Results: " << margot << " to " << brad << " ===" << endl;
+        displayPath(bds, "BdS", outputFile);
+    } else {
+        cerr << "Failed to open output file for writing results." << endl;
+    }
+
+
+
+    //TODO:
+    //getting user input
+    //api client
+    //get actors from api
+    //add actors to graph
+    //traverse using algorithms
+    //display paths
+    //performance analysis
 
     return 0;
 }
