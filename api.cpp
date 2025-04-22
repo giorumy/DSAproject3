@@ -1,5 +1,6 @@
 #include "api.h"
 
+
 api::api(const string& key) : api_key(key), base_url("https://api.themoviedb.org/3") {
     apiLog.open("apiLog.txt");
     if (!apiLog.is_open()) {

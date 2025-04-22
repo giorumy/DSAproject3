@@ -2,16 +2,12 @@
 #define GRAPH_H
 
 #include <iostream>
-#include <vector>
-#include <string>
 #include <unordered_map>
 #include <unordered_set>
 #include <queue>
 #include <stack>
 #include <set>
 #include <chrono>
-#include <functional>
-
 #include "api.h"
 
 using namespace std;
@@ -56,6 +52,7 @@ private:
     unordered_map<int, Movie*> movies; //(movie.id, movie.title)
     unordered_map<int, vector<Connection>> adjacencyList; //(actor.id, edges)
     api& API;
+    ofstream graphLog;
 
     //helper functions:
 
@@ -77,12 +74,17 @@ private:
     void expandFromActor(int actorID, set<int>& targetSet);
 
     //TODO:
-    // bool processNeighbors(int currentId, unordered_map<int, pair<int, Movie*>>& previous,
-    //                        set<int>& visited, queue<int>& q, set<int>& otherVisited,
-    //                        int& meetingPoint);
+    bool processNeighbors(int currentId, unordered_map<int, pair<int, Movie*>>& previous,
+                           set<int>& visited, queue<int>& q, set<int>& otherVisited,
+                           int& meetingPoint);
 
 public:
-    Graph(api& apiInstance) : API(apiInstance){} //constructor
+    Graph(api& apiInstance) : API(apiInstance) { //constructor
+        graphLog.open("graphLog.txt");
+        if (!graphLog.is_open()) {
+            graphLog << "ERROR: Error opening graph log file" << endl;
+        }
+    }
 
     ~Graph() { //destructor
         //delete actors
@@ -91,6 +93,10 @@ public:
         //delete movies
         for (auto& pair : movies)
             delete pair.second;
+        //close log file
+        if (graphLog.is_open()) {
+            graphLog.close();
+        }
     }
 
     //adds actor to the graph given a pointer to that actor object and the id of actor we want to connect it with
@@ -108,7 +114,7 @@ public:
     pair<int, int> getStats() const;
 
     // TODO:
-    // SearchResult findPathBidirectional(int startActorId, int endActorId);
+     SearchResult findPathBDS(int startActorId, int endActorId);
 
 };
 

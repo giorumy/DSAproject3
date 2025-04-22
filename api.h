@@ -1,12 +1,11 @@
 #ifndef API_H
 #define API_H
 
-#include <iostream>
 #include <fstream>
-
 #include <cstdlib>
 #include <sstream>
-#include <unordered_map>
+#include <vector>
+#include <string>
 
 #include "json.hpp"
 using json = nlohmann::json;
