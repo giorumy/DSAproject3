@@ -279,3 +279,122 @@ pair<int, int> Graph::getStats() const {
     // Divide by 2 because connections are bidirectional
     return make_pair(actors.size(), connectionCount / 2);
 }
+
+
+// bidirectional search to find path between two actors
+SearchResult Graph::findPathBDS(int startActorId, int endActorId) {
+    auto startTime = chrono::high_resolution_clock::now();
+    SearchResult result;
+
+    // if start and end the same
+    if (startActorId == endActorId) {
+        if (actors.find(startActorId) != actors.end()) {
+            result.path.push_back(PathStep(actors[startActorId]));
+            result.visited = 1;
+        }
+        auto endTime = chrono::high_resolution_clock::now();
+        result.time_ms = chrono::duration<double, milli>(endTime - startTime).count();
+        return result;
+    }
+
+    // forward and backward search data structures
+    queue<int> forwardQueue, backwardQueue;
+    set<int> forwardVisited, backwardVisited;
+    unordered_map<int, pair<int, Movie*>> forwardPrevious, backwardPrevious;
+
+    // search from both ends
+    forwardQueue.push(startActorId);
+    backwardQueue.push(endActorId);
+    forwardVisited.insert(startActorId);
+    backwardVisited.insert(endActorId);
+    result.visited = 2; // initially visited 2 nodes
+
+
+    int meetingPoint = -1;
+    bool pathFound = false;
+
+    while (!forwardQueue.empty() && !backwardQueue.empty() && !pathFound) {
+        if (forwardQueue.size() <= backwardQueue.size()) {
+            int currentActorId = forwardQueue.front();
+            forwardQueue.pop();
+            const auto& connections = adjacencyList[currentActorId];
+
+            for (const auto& connection : connections) {
+                int neighborId = connection.actorId;
+                if (forwardVisited.find(neighborId) == forwardVisited.end()) {
+                    forwardVisited.insert(neighborId);
+                    result.visited++;
+                    forwardQueue.push(neighborId);
+
+                    // using first movie for simplicity
+                    forwardPrevious[neighborId] = make_pair(currentActorId, connection.movies[0]);
+
+                    if (backwardVisited.find(neighborId) != backwardVisited.end()) {
+                        meetingPoint = neighborId;
+                        pathFound = true;
+                        break;
+                    }
+                }
+            }
+        } else {
+            int currentActorId = backwardQueue.front();
+            backwardQueue.pop();
+            const auto& connections = adjacencyList[currentActorId];
+
+            for (const auto& connection : connections) {
+                int neighborId = connection.actorId;
+                if (backwardVisited.find(neighborId) == backwardVisited.end()) {
+                    backwardVisited.insert(neighborId);
+                    result.visited++;
+                    backwardQueue.push(neighborId);
+
+                    // first movie used for simplicity
+                    backwardPrevious[neighborId] = make_pair(currentActorId, connection.movies[0]);
+
+                    if (forwardVisited.find(neighborId) != forwardVisited.end()) {
+                        meetingPoint = neighborId;
+                        pathFound = true;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    if (pathFound) {
+        vector<PathStep> path;
+        int current = meetingPoint;
+        vector<PathStep> forwardPath;
+
+        while (current != startActorId) {
+            auto prev = forwardPrevious[current];
+            forwardPath.insert(forwardPath.begin(), PathStep(
+                actors[current],
+                actors[prev.first],
+                prev.second
+            ));
+            current = prev.first;
+        }
+
+        forwardPath.insert(forwardPath.begin(), PathStep(actors[startActorId]));
+        current = meetingPoint;
+        vector<PathStep> backwardPath;
+
+        while (current != endActorId) {
+            auto prev = backwardPrevious[current];
+            backwardPath.push_back(PathStep(
+                actors[prev.first],
+                actors[current],
+                prev.second
+            ));
+            current = prev.first;
+        }
+
+        // combine the paths
+        path = forwardPath;
+        path.insert(path.end(), backwardPath.begin(), backwardPath.end());
+        result.path = path;
+    }
+    auto endTime = chrono::high_resolution_clock::now();
+    result.time_ms = chrono::duration<double, milli>(endTime - startTime).count();
+    return result;
+}

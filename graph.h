@@ -91,6 +91,9 @@ public:
 
     // Get graph statistics
     pair<int, int> getStats() const;
+
+    // Bidirectional search to find path between two actors
+    SearchResult findPathBDS(int startActorId, int endActorId);
 };
 
 #endif // GRAPH_H
