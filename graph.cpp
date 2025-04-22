@@ -171,8 +171,6 @@ SearchResult Graph::findPathBFS(int startActorId, int endActorId) {
 
     //step 1: fetch data in case start actor has no edges yet
 
-    auto fetch_start = chrono::high_resolution_clock::now();
-
     if (adjacencyList[startActorId].empty()) {
         graphLog << "BFS: No existing connections for actor " << startActorId << ". ";
         set<int> dummySet;
@@ -181,8 +179,6 @@ SearchResult Graph::findPathBFS(int startActorId, int endActorId) {
         graphLog << "BFS: Found " << adjacencyList[startActorId].size() << " existing connections for start actor." << endl;
     }
 
-    auto fetch_end = chrono::high_resolution_clock::now();
-    result.data_fetch_ms = chrono::duration<double, milli>(fetch_end - fetch_start).count();
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -351,7 +347,6 @@ bool Graph::processNeighbors(int currentActorId, unordered_map<int, pair<int, Mo
 
 //Bidirectional Search (BDS)
 SearchResult Graph::findPathBDS(int startActorId, int endActorId) {
-    auto startTime = chrono::high_resolution_clock::now();
     SearchResult result;
 
     if(startActorId == endActorId) {
@@ -359,33 +354,38 @@ SearchResult Graph::findPathBDS(int startActorId, int endActorId) {
             result.path.push_back(PathStep(actors[startActorId]));
             result.visited = 1;
         }
-        auto endTime = chrono::high_resolution_clock::now();
-        result.time_ms = chrono::duration<double, milli>(endTime - startTime).count();
         return result;
     }
-    //Expand graph from starting actor if empty
+
     if(adjacencyList[startActorId].empty()) {
         set<int> expansionSet;
         expandFromActor(startActorId, expansionSet);
     }
-    //Expand graph from ending actor if empty
     if(adjacencyList[endActorId].empty()) {
         set<int> expansionSet;
         expandFromActor(endActorId, expansionSet);
     }
+
+    auto algorithmStart = chrono::high_resolution_clock::now();
+
     int meetingPoint = -1;
     result.visited = 2;
-    //Forward search starting with starting actor
+
+    // forward search
     queue<int> forwardQueue;
     set<int> forwardVisited;
     unordered_map<int, pair<int, Movie*>> forwardPrevious;
     forwardQueue.push(startActorId);
-    //Backwards search starting with ending actor
+    forwardVisited.insert(startActorId);
+
+    // backwards search
     queue<int> backwardQueue;
     set<int> backwardVisited;
     unordered_map<int, pair<int, Movie*>> backwardPrevious;
     backwardQueue.push(endActorId);
-    //Breadth First Search in both directions
+    backwardVisited.insert(endActorId);
+
+    // BFS in both directions
     while(!forwardQueue.empty() && !backwardQueue.empty() && meetingPoint == -1) {
         int levelSize = forwardQueue.size();
         for(int i = 0; i < levelSize && meetingPoint == -1; i++) {
@@ -410,11 +410,12 @@ SearchResult Graph::findPathBDS(int startActorId, int endActorId) {
             result.visited++;
         }
     }
-    //Reconstructing path if a meeting point is found
+
     if(meetingPoint != -1) {
         vector<PathStep> forwardPath;
         vector<PathStep> backwardPath;
-        //Building path forward from starting actor
+
+        // building path forward
         int currentActorId = meetingPoint;
         while(currentActorId != startActorId) {
             auto prev = forwardPrevious[currentActorId];
@@ -422,20 +423,24 @@ SearchResult Graph::findPathBDS(int startActorId, int endActorId) {
             currentActorId = prev.first;
         }
         forwardPath.insert(forwardPath.begin(), PathStep(actors[startActorId]));
-        //Building path backwards from ending actor
+
+        // building path backwards
         currentActorId = meetingPoint;
         while(backwardPrevious.find(currentActorId) != backwardPrevious.end()) {
             auto prev = backwardPrevious[currentActorId];
             backwardPath.push_back(PathStep(actors[prev.first], actors[currentActorId], prev.second));
             currentActorId = prev.first;
         }
-        // Combine paths (remove duplicate meeting point)
+
+        // Combine paths
         result.path = forwardPath;
         if (!backwardPath.empty()) {
             result.path.insert(result.path.end(), backwardPath.begin(), backwardPath.end());
         }
     }
-    auto endTime = chrono::high_resolution_clock::now();
-    result.time_ms = chrono::duration<double, milli>(endTime - startTime).count();
+
+    auto algorithmEnd = chrono::high_resolution_clock::now();
+    result.algorithm_ms = chrono::duration<double, milli>(algorithmEnd - algorithmStart).count();
+
     return result;
 }
