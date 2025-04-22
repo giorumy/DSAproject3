@@ -1,8 +1,46 @@
 #include <iostream>
 #include "graph.h"
+#include <string>
+#include <vector>
+#include <iomanip>
+#include <fstream>
+#include "api.h"
 
+using namespace std;
 //TODO: Function to display the path
-void displayPath(const SearchResult& result, const string& algorithm, ostream& out = cout) {}
+void displayPath(const SearchResult& result, const string& algorithm, ostream& out = cout) {
+    if (result.path.empty()) {
+        out << "No path found using " << algorithm << "." << endl;
+        return;
+    }
+
+    out << "\n===== Path found using " << algorithm << " =====" << endl;
+    out << "Total time: " << fixed << setprecision(2) << result.time_ms << " ms" << endl;
+    out << "Data fetch time: " << fixed << setprecision(2) << result.data_fetch_ms << " ms" << endl;
+    out << "Algorithm time: " << fixed << setprecision(2) << result.algorithm_ms << " ms" << endl;
+    out << "Nodes visited: " << result.visited << endl;
+    out << "\nPath: " << endl;
+
+    // prints path with movie connections
+    out << "\nPath: ";
+    for (size_t i = 0; i < result.path.size(); i++) {
+        const auto& step = result.path[i];
+        out << step.actor->name;
+        if (i < result.path.size() - 1) {
+            const auto& nextStep = result.path[i + 1];
+
+            if (nextStep.movie && nextStep.prevActor && nextStep.prevActor->id == step.actor->id) {
+                string year = nextStep.movie->release_date.empty() ? "N/A" : nextStep.movie->release_date.substr(0, 4);
+                out << " → [" << nextStep.movie->title << " (" << year << ")] → ";
+            } else {
+                out << " → [Connection exists but movie details not available] → ";
+            }
+        }
+    }
+    out << endl;
+}
+
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -76,3 +114,5 @@ int main(){
 //traverse using algorithms
 //display paths
 //performance analysis
+
+
