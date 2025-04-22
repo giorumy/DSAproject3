@@ -3,13 +3,12 @@
 
 #include <iostream>
 #include <fstream>
-#include <optional> //https://en.cppreference.com/w/cpp/utility/optional
-#include "json.hpp"
 
 #include <cstdlib>
 #include <sstream>
 #include <unordered_map>
 
+#include "json.hpp"
 using json = nlohmann::json;
 using namespace std;
 
@@ -40,8 +39,13 @@ private:
     string api_key;
     string base_url;
 
+    ofstream apiLog;
+
 public:
-    api(const string& key) : api_key(key), base_url("https://api.themoviedb.org/3") {} //constructor
+    api(const string& key); //constructor
+    ~api(); //destructor
+
+
 
     //TODO: maybe these two methods could be private?
     string fetchData(const string &url); //makes API requests
