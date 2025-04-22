@@ -8,7 +8,7 @@ void displayPath(const SearchResult& result, const string& algorithm, ostream& o
         return;
     }
 
-    out << "\n======= " << algorithm << " Path =======" << endl;
+    out << "\n============== " << algorithm << " Path ==============" << endl;
     out << "Algorithm time: " << fixed << setprecision(2) << result.algorithm_ms << " ms" << endl;
     out << "Nodes visited: " << result.visited << endl;
 
