@@ -192,7 +192,6 @@ SearchResult Graph::findPathBFS(int startActorId, int endActorId) {
     q.push(startActorId);
     visited.insert(startActorId);
     bool found = false;
-    result.visited = 1;
 
     while (!q.empty() && !found) {
         int currentId = q.front();
@@ -210,7 +209,6 @@ SearchResult Graph::findPathBFS(int startActorId, int endActorId) {
                 graphLog << "BFS: Visiting neighbor " << neighborId  << " (" << actors[neighborId]->name << ")" << endl;
 
                 visited.insert(neighborId);
-                result.visited++;
                 q.push(neighborId);
 
                 previous[neighborId] = make_pair(currentId, connection.movies[0]);
@@ -248,6 +246,8 @@ SearchResult Graph::findPathBFS(int startActorId, int endActorId) {
     for (auto it = reversedPath.rbegin(); it != reversedPath.rend(); ++it) {
         result.path.push_back(*it);
     }
+
+    result.visited = visited.size();
 
     graphLog << "BFS complete! Path length: " << result.path.size() << endl;
     return result;
@@ -321,7 +321,6 @@ pair<int, int> Graph::getStats() const {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///TODO:
 
 //Helper method for bidirectional search to process neighbors and find meeting points
 bool Graph::processNeighbors(int currentActorId, unordered_map<int, pair<int, Movie*>>& previous, set<int> &visited, queue<int> &q, set<int> &otherVisited, int &meetingPoint) {
@@ -394,7 +393,6 @@ SearchResult Graph::findPathBDS(int startActorId, int endActorId) {
             if(processNeighbors(currentActorId, forwardPrevious, forwardVisited, forwardQueue, backwardVisited, meetingPoint)) {
                 break;
             }
-            result.visited++;
         }
         if(meetingPoint != -1) {
             break;
@@ -407,9 +405,13 @@ SearchResult Graph::findPathBDS(int startActorId, int endActorId) {
             if (processNeighbors(currentId, backwardPrevious, backwardVisited, backwardQueue, forwardVisited, meetingPoint)) {
                 break;
             }
-            result.visited++;
         }
     }
+
+    set<int> totalVisited;
+    totalVisited.insert(forwardVisited.begin(), forwardVisited.end());
+    totalVisited.insert(backwardVisited.begin(), backwardVisited.end());
+    result.visited = totalVisited.size();
 
     if(meetingPoint != -1) {
         vector<PathStep> forwardPath;
