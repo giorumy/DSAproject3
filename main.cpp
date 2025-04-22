@@ -9,8 +9,6 @@ void displayPath(const SearchResult& result, const string& algorithm, ostream& o
     }
 
     out << "\n======= " << algorithm << " Path =======" << endl;
-    out << "Total time: " << fixed << setprecision(2) << result.time_ms << " ms" << endl;
-    out << "Data fetch time: " << fixed << setprecision(2) << result.data_fetch_ms << " ms" << endl;
     out << "Algorithm time: " << fixed << setprecision(2) << result.algorithm_ms << " ms" << endl;
     out << "Nodes visited: " << result.visited << endl;
 
@@ -34,7 +32,55 @@ void displayPath(const SearchResult& result, const string& algorithm, ostream& o
 }
 
 //TODO: function to compare searches
-void displayPerformances(const SearchResult& search1, const SearchResult& search2, ostream& out = cout){}
+void displayPerformances(const SearchResult& bds, const SearchResult& bfs, ostream& out = cout) {
+    out << "\n===== Algorithm Performance Comparison =====" << endl;
+
+    // Create a table header
+    out << "┌─────────────────┬────────────┬────────────┐" << endl;
+    out << "│ Algorithm       │ Algorithm  │ Nodes      │" << endl;
+    out << "│                 │ Time (ms)  │ Visited    │" << endl;
+    out << "├─────────────────┼────────────┼────────────┤" << endl;
+
+    // Add BDS data
+    out << "│ Bidirectional   │ " << setw(10) << fixed << setprecision(2) << bds.algorithm_ms
+         << " │ " << setw(10) << bds.visited << " │" << endl;
+
+    // Add BFS data
+    out << "│ BFS             │ " << setw(10) << fixed << setprecision(2) << bfs.algorithm_ms
+         << " │ " << setw(10) << bfs.visited << " │" << endl;
+
+    out << "└─────────────────┴────────────┴────────────┘" << endl;
+
+
+    // Add efficiency comparison
+    out << "\n===== Efficiency Analysis =====" << endl;
+
+    // Compare algorithm time
+    if (bds.algorithm_ms < bfs.algorithm_ms) {
+        double speedup = bfs.algorithm_ms / bds.algorithm_ms;
+        out << "Bidirectional Search was " << fixed << setprecision(2) << speedup
+            << "x faster than BFS." << endl;
+    } else if (bfs.algorithm_ms < bds.algorithm_ms) {
+        double speedup = bds.algorithm_ms / bfs.algorithm_ms;
+        out << "BFS was " << fixed << setprecision(2) << speedup
+            << "x faster than Bidirectional Search." << endl;
+    } else {
+        out << "Both algorithms had similar execution times." << endl;
+    }
+
+    // Compare nodes visited
+    if (bds.visited < bfs.visited) {
+        double reduction = static_cast<double>(bfs.visited) / bds.visited;
+        out << "Bidirectional Search visited " << fixed << setprecision(2) << reduction
+            << "x fewer nodes than BFS." << endl;
+    } else if (bfs.visited < bds.visited) {
+        double reduction = static_cast<double>(bds.visited) / bfs.visited;
+        out << "BFS visited " << fixed << setprecision(2) << reduction
+            << "x fewer nodes than Bidirectional Search." << endl;
+    } else {
+        out << "Both algorithms visited a similar number of nodes." << endl;
+    }
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -83,7 +129,7 @@ int main(){
     cout << "Connecting stars...\n" << endl;
 
     cout << "Performing bidirectional search..." << endl;
-    auto bidirectional = graph.findPathBidirectional(actorId1, actorId2);
+    auto bidirectional = graph.findPathBDS(actorId1, actorId2);
 
     cout << "Performing breadth first search..." << endl;
     auto breathfirst = graph.findPathBFS(actorId1, actorId2);
@@ -106,6 +152,10 @@ int main(){
     if(outputFile.is_open()) {
         outputFile.close();
     }
+
+    //clean up
+    delete actor1;
+    delete actor2;
 
     return 0;
 }
