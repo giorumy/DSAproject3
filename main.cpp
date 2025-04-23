@@ -1,6 +1,6 @@
 #include <iostream>
 #include "graph.h"
-
+//Group 95 - Project by Giovana, Lutfiyah, and Joshua
 //function to display the path
 void displayPath(const SearchResult& result, const string& algorithm, ostream& out = cout) {
     if (result.path.empty()) {
@@ -115,7 +115,7 @@ int main(){
     //build graph
     cout << "--------------------------------------------------" << endl;
 
-    cout << "Creating constelation...\n" << endl;
+    cout << "Creating constellation...\n" << endl;
 
     Graph graph(tmdb);
     graph.addActor(actor1, actorId2);
@@ -132,7 +132,7 @@ int main(){
     auto bidirectional = graph.findPathBDS(actorId1, actorId2);
 
     cout << "Performing breadth first search..." << endl;
-    auto breathfirst = graph.findPathBFS(actorId1, actorId2);
+    auto breadthfirst = graph.findPathBFS(actorId1, actorId2);
 
     //write results to file
     cout << "--------------------------------------------------" << endl;
@@ -140,13 +140,13 @@ int main(){
 
     ofstream outputFile("results.txt");
     displayPath(bidirectional, "Bidirectional Search", outputFile);
-    displayPath(breathfirst, "Breadth First Search", outputFile);
+    displayPath(breadthfirst, "Breadth First Search", outputFile);
 
     //compare algorithms
     cout << "--------------------------------------------------" << endl;
     cout << "Comparing searches...\n" << endl;
 
-    displayPerformances(bidirectional, breathfirst, outputFile);
+    displayPerformances(bidirectional, breadthfirst, outputFile);
 
     //close file
     if(outputFile.is_open()) {
